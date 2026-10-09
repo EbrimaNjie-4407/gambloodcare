@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GAMBLOODCARE — National Blood Donation Platform</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    .fill-1 { font-variation-settings: 'FILL' 1; }
+    .blood-pulse { animation: pulse-red 2s infinite; }
+    @keyframes pulse-red {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(175, 16, 26, 0.4); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(175, 16, 26, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(175, 16, 26, 0); }
+    }
+    .glass-card { background: rgba(255,255,255,.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(224,224,224,1); }
+    .donor-map-bg { background: linear-gradient(135deg, #ffdad6 0%, #f3e9dd 100%); }
+    body { min-height: max(884px, 100dvh); }
+    .view { display: none; }
+    .view.active { display: block; }
+    .role-card { transition: transform .15s ease, box-shadow .15s ease; }
+    .role-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    .fade-in { animation: fadeIn .25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: { extend: {
+            colors: {
+                "on-secondary-fixed": "#00201b", "surface-container-low": "#f3f3f3", "inverse-primary": "#ffb3ac",
+                "primary": "#af101a", "background": "#f9f9f9", "error": "#ba1a1a", "on-primary": "#ffffff",
+                "outline": "#8f6f6c", "on-primary-fixed": "#410003", "secondary-container": "#94f0df",
+                "on-secondary": "#ffffff", "tertiary-fixed-dim": "#a5c8ff", "primary-fixed": "#ffdad6",
+                "surface-container-highest": "#e2e2e2", "tertiary-fixed": "#d4e3ff", "on-tertiary-fixed": "#001c3a",
+                "inverse-on-surface": "#f1f1f1", "on-background": "#1a1c1c", "outline-variant": "#e4beba",
+                "on-tertiary": "#ffffff", "surface-container": "#eeeeee", "surface-variant": "#e2e2e2",
+                "on-primary-fixed-variant": "#930010", "primary-fixed-dim": "#ffb3ac", "on-secondary-fixed-variant": "#005047",
+                "on-secondary-container": "#006f62", "secondary": "#006b5e", "on-error-container": "#93000a",
+                "surface": "#f9f9f9", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#f0f4ff",
+                "on-surface-variant": "#5b403d", "tertiary-container": "#0770cc", "surface-container-high": "#e8e8e8",
+                "error-container": "#ffdad6", "secondary-fixed-dim": "#7ad7c6", "surface-dim": "#dadada",
+                "surface-bright": "#f9f9f9", "secondary-fixed": "#97f3e2", "on-tertiary-fixed-variant": "#004786",
+                "on-error": "#ffffff", "inverse-surface": "#2f3131", "on-primary-container": "#fff2f0",
+                "surface-tint": "#ba1a20", "on-surface": "#1a1c1c", "tertiary": "#0058a2"
+            },
+            borderRadius: { DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem" },
+            spacing: { base:"8px", "margin-desktop":"32px","stack-lg":"48px","stack-sm":"12px","margin-mobile":"16px","stack-md":"24px","gutter":"24px","container-max":"1200px" },
+            fontFamily: { "emergency-stat":["Inter"],"body-lg":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"headline-xl":["Inter"],"headline-md":["Inter"],"headline-lg-mobile":["Inter"],"label-md":["Inter"] },
+            fontSize: {
+                "emergency-stat": ["48px", { lineHeight:"48px", letterSpacing:"-0.04em", fontWeight:"800" }],
+                "body-lg": ["18px", { lineHeight:"28px", fontWeight:"400" }],
+                "headline-lg": ["32px", { lineHeight:"40px", letterSpacing:"-0.02em", fontWeight:"700" }],
+                "body-md": ["16px", { lineHeight:"24px", fontWeight:"400" }],
+                "headline-xl": ["40px", { lineHeight:"48px", letterSpacing:"-0.02em", fontWeight:"700" }],
+                "headline-md": ["24px", { lineHeight:"32px", fontWeight:"600" }],
+                "headline-lg-mobile": ["28px", { lineHeight:"34px", fontWeight:"700" }],
+                "label-md": ["14px", { lineHeight:"20px", fontWeight:"600" }]
+            }
+        }}
+    }
+</script>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+
+<!-- ============ TOP APP BAR ============ -->
+<header class="fixed top-0 w-full z-50 shadow-md bg-primary flex items-center justify-between px-margin-mobile h-16">
+  <div class="flex items-center gap-3">
+    <button onclick="goTo('home')" class="flex items-center gap-2 text-on-primary">
+      <span class="material-symbols-outlined fill-1">favorite</span>
+      <span class="font-headline-md text-[16px] font-extrabold hidden sm:inline">GAMBLOODCARE</span>
+    </button>
+  </div>
+  <nav class="hidden md:flex items-center gap-6">
+    <button onclick="goTo('find-donors')" class="text-on-primary/85 hover:text-on-primary text-[13px] font-bold">Find Donors</button>
+    <button onclick="goTo('benefits')" class="text-on-primary/85 hover:text-on-primary text-[13px] font-bold">Learn</button>
+    <button onclick="goTo('hospital-dashboard')" class="text-on-primary/85 hover:text-on-primary text-[13px] font-bold">Hospital</button>
+    <button onclick="goTo('blood-bank-dashboard')" class="text-on-primary/85 hover:text-on-primary text-[13px] font-bold">Blood Bank</button>
+    <button onclick="goTo('admin-analytics')" class="text-on-primary/85 hover:text-on-primary text-[13px] font-bold">Admin</button>
+    <button onclick="goTo('emergency-ops')" class="text-on-primary/85 hover:text-on-primary text-[13px] font-bold">Emergency Ops</button>
+  </nav>
+  <div class="flex items-center gap-3">
+    <button onclick="goTo('messages')" title="Messages" class="relative text-on-primary">
+      <span class="material-symbols-outlined">chat</span>
+      <span id="unread-badge" class="hidden absolute -top-1 -right-1 bg-on-primary text-primary text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">0</span>
+    </button>
+    <button onclick="goTo('admin-approvals')" title="Admin approval queue" class="relative text-on-primary">
+      <span class="material-symbols-outlined">verified_user</span>
+      <span id="pending-badge" class="hidden absolute -top-1 -right-1 bg-on-primary text-primary text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">0</span>
+    </button>
+    <button onclick="goTo('emergency')" class="text-on-primary">
+      <span class="material-symbols-outlined">emergency_share</span>
+    </button>
+  </div>
+</header>
+
+<main class="mt-16 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-md">
+
+<!-- ============ HOME ============ -->
+<section id="view-home" class="view active fade-in">
+  <section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md mb-stack-md relative overflow-hidden">
+    <span class="bg-error-container text-on-error-container px-3 py-1 rounded-full font-label-md text-label-md inline-flex items-center gap-1 mb-4">
+      <span class="w-2 h-2 bg-error rounded-full animate-pulse"></span> Emergency Response Active
+    </span>
+    <h1 class="font-headline-xl text-headline-lg-mobile md:text-headline-xl text-on-surface mb-3">
+      Find Life-Saving <span class="text-primary">Blood Donors</span> in The Gambia.
+    </h1>
+    <p class="font-body-md text-body-md text-on-surface-variant mb-6 max-w-xl">
+      Connect directly with verified donors and medical centers in critical moments. Every second counts.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <button onclick="goTo('role-select')" class="h-12 px-6 bg-primary text-on-primary rounded-full font-label-md text-label-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-[18px] fill-1">favorite</span> Become a Donor
+      </button>
+      <button onclick="goTo('find-donors')" class="h-12 px-6 border-2 border-primary text-primary rounded-full font-label-md text-label-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-[18px]">search</span> Find Donors
+      </button>
+    </div>
+  </section>
+
+  <section class="mb-stack-md">
+    <h2 class="font-headline-md text-headline-md text-on-surface mb-1">One Platform, Every Part of the Chain</h2>
+    <p class="font-body-md text-body-md text-on-surface-variant mb-4">GAMBLOODCARE connects the full national blood ecosystem.</p>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <button onclick="goTo('role-select')" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 text-center hover:shadow-md transition-shadow">
+        <div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center mx-auto mb-2">
+          <span class="material-symbols-outlined text-on-primary-fixed-variant">favorite</span>
+        </div>
+        <p class="font-label-md text-label-md text-on-surface">Donor / Patient</p>
+      </button>
+      <button onclick="goTo('hospital-dashboard')" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 text-center hover:shadow-md transition-shadow">
+        <div class="w-11 h-11 rounded-full bg-tertiary-fixed flex items-center justify-center mx-auto mb-2">
+          <span class="material-symbols-outlined text-on-tertiary-fixed-variant">local_hospital</span>
+        </div>
+        <p class="font-label-md text-label-md text-on-surface">Hospital Portal</p>
+      </button>
+      <button onclick="goTo('blood-bank-dashboard')" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 text-center hover:shadow-md transition-shadow">
+        <div class="w-11 h-11 rounded-full bg-secondary-fixed flex items-center justify-center mx-auto mb-2">
+          <span class="material-symbols-outlined text-on-secondary-fixed-variant">bloodtype</span>
+        </div>
+        <p class="font-label-md text-label-md text-on-surface">Blood Bank</p>
+      </button>
+      <button onclick="goTo('admin-analytics')" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 text-center hover:shadow-md transition-shadow">
+        <div class="w-11 h-11 rounded-full bg-surface-container-highest flex items-center justify-center mx-auto mb-2">
+          <span class="material-symbols-outlined text-on-surface">monitoring</span>
+        </div>
+        <p class="font-label-md text-label-md text-on-surface">Admin Portal</p>
+      </button>
+      <button onclick="goTo('emergency-ops')" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 text-center hover:shadow-md transition-shadow">
+        <div class="w-11 h-11 rounded-full bg-error-container flex items-center justify-center mx-auto mb-2">
+          <span class="material-symbols-outlined text-on-error-container">emergency</span>
+        </div>
+        <p class="font-label-md text-label-md text-on-surface">Emergency Ops</p>
+      </button>
+    </div>
+  </section>
+
+  <section class="bg-surface-container-low border border-outline-variant rounded-xl p-stack-md text-center max-w-xl mx-auto">
+    <div class="w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center mx-auto mb-4">
+      <span class="material-symbols-outlined fill-1">favorite</span>
+    </div>
+    <h3 class="font-headline-md text-headline-md text-on-surface mb-2">You Can Be a Hero Today</h3>
+    <p class="font-body-md text-body-md text-on-surface-variant mb-5">The Gambia needs dedicated donors. Registering takes 2 minutes, but your contribution lasts a lifetime.</p>
+    <button onclick="goTo('role-select')" class="inline-flex h-12 px-6 bg-primary text-on-primary rounded-full font-label-md text-label-md items-center justify-center gap-2 active:scale-95 transition-transform">
+      Get Started
+    </button>
+  </section>
+</section>
+
+<!-- ============ ROLE SELECT ============ -->
+<section id="view-role-select" class="view fade-in max-w-2xl mx-auto">
+  <div class="text-center mb-stack-md">
+    <h1 class="font-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">How would you like to continue?</h1>
+    <p class="font-body-md text-body-md text-on-surface-variant">Choose the option that matches what you need right now.</p>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <button onclick="goTo('donor-register')" class="role-card bg-surface-container-lowest border-2 border-outline-variant hover:border-primary rounded-xl p-stack-md text-center">
+      <div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-on-primary-fixed-variant text-[28px] fill-1">favorite</span>
+      </div>
+      <h2 class="font-headline-md text-headline-md text-on-surface mb-2">I'm a Donor</h2>
+      <p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed">Register as a blood donor. Your profile joins the donor list once verified by an admin.</p>
+    </button>
+    <button onclick="goTo('patient-register')" class="role-card bg-surface-container-lowest border-2 border-outline-variant hover:border-secondary rounded-xl p-stack-md text-center">
+      <div class="w-16 h-16 rounded-full bg-secondary-fixed flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-on-secondary-fixed-variant text-[28px]">personal_injury</span>
+      </div>
+      <h2 class="font-headline-md text-headline-md text-on-surface mb-2">I'm a Patient</h2>
+      <p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed">Register your need and immediately search the donor list for a match.</p>
+    </button>
+  </div>
+</section>
+
+<!-- ============ DONOR REGISTER ============ -->
+<section id="view-donor-register" class="view fade-in max-w-xl mx-auto">
+  <div class="mb-stack-sm">
+    <button onclick="goTo('role-select')" class="text-on-surface-variant text-[13px] flex items-center gap-1 mb-3">
+      <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+    </button>
+    <h1 class="font-headline-md text-headline-md text-on-surface mb-1">Donor Registration</h1>
+    <p class="font-body-md text-[13px] text-on-surface-variant">Your submission is reviewed by an admin before appearing in the donor list.</p>
+  </div>
+
+  <form id="donor-form" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md" onsubmit="submitDonor(event)">
+    <div class="mb-4">
+      <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">Full Name</label>
+      <input required id="donor-name" type="text" placeholder="e.g. Lamin Jallow" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+    </div>
+    <div class="mb-4">
+      <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">Address</label>
+      <input required id="donor-address" type="text" placeholder="Street address or neighborhood" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">Phone Number</label>
+        <input required id="donor-phone" type="tel" placeholder="+220 XXX XXXX" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+      </div>
+      <div>
+        <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">ID Number</label>
+        <input required id="donor-id" type="text" placeholder="National ID number" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">Blood Group</label>
+      <select required id="donor-bloodgroup" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+        <option value="">Select blood group</option>
+        <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+        <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+      </select>
+    </div>
+    <div class="mb-6">
+      <label class="font-label-md text-[12px] text-on-surface-variant block mb-2">Profile Picture</label>
+      <p class="font-label-md text-[11px] text-on-surface-variant mb-2">This photo is automatically used as your profile picture in the donor list.</p>
+      <div class="flex items-center gap-4">
+        <div id="donor-photo-preview" class="w-16 h-16 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden flex-shrink-0">
+          <span class="material-symbols-outlined text-on-surface-variant">person</span>
+        </div>
+        <label class="flex-1 border-2 border-dashed border-outline-variant rounded-xl h-16 flex items-center justify-center text-on-surface-variant text-[13px] gap-2 cursor-pointer hover:bg-surface-container-low">
+          <span class="material-symbols-outlined">upload</span> <span id="donor-photo-label">Upload a photo</span>
+          <input id="donor-photo-input" type="file" accept="image/*" class="hidden" onchange="previewDonorPhoto(event)">
+        </label>
+      </div>
+    </div>
+    <p class="font-label-md text-[11px] text-on-surface-variant mb-4 flex items-start gap-1.5">
+      <span class="material-symbols-outlined text-[15px]">lock</span>
+      Your ID number is stored securely and is never shown publicly. Only your name, blood group, and phone number are visible to patients once approved.
+    </p>
+    <button type="submit" class="w-full h-12 bg-primary text-on-primary rounded-full font-label-md text-label-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
+      Submit for Approval <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+    </button>
+  </form>
+</section>
+
+<!-- ============ DONOR PENDING CONFIRMATION ============ -->
+<section id="view-donor-pending" class="view fade-in max-w-md mx-auto text-center py-stack-lg">
+  <div class="w-20 h-20 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mx-auto mb-6">
+    <span class="material-symbols-outlined fill-1 text-[36px]">hourglass_top</span>
+  </div>
+  <h1 class="font-headline-md text-headline-md text-on-surface mb-2">Thanks, <span id="pending-donor-name">Donor</span>!</h1>
+  <p class="font-body-md text-body-md text-on-surface-variant mb-8">Your registration was submitted. It will appear in the donor list once an admin approves it — usually within a day.</p>
+  <div class="flex flex-col sm:flex-row gap-3 justify-center">
+    <button onclick="goTo('find-donors')" class="h-11 px-6 border-2 border-primary text-primary rounded-full font-label-md text-label-md">View Donor List</button>
+    <button onclick="goTo('home')" class="h-11 px-6 bg-primary text-on-primary rounded-full font-label-md text-label-md">Back to Home</button>
+  </div>
+</section>
+
+<!-- ============ PATIENT REGISTER ============ -->
+<section id="view-patient-register" class="view fade-in max-w-xl mx-auto">
+  <div class="mb-stack-sm">
+    <button onclick="goTo('role-select')" class="text-on-surface-variant text-[13px] flex items-center gap-1 mb-3">
+      <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+    </button>
+    <h1 class="font-headline-md text-headline-md text-on-surface mb-1">Patient Registration</h1>
+    <p class="font-body-md text-[13px] text-on-surface-variant">Tell us what you need so we can help you find a match right away.</p>
+  </div>
+
+  <form id="patient-form" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md" onsubmit="submitPatient(event)">
+    <div class="mb-4">
+      <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">Full Name</label>
+      <input required id="patient-name" type="text" placeholder="e.g. Fatou Ceesay" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+    </div>
+    <div class="mb-4">
+      <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">Address</label>
+      <input required id="patient-address" type="text" placeholder="Street address or neighborhood" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">Phone Number</label>
+        <input required id="patient-phone" type="tel" placeholder="+220 XXX XXXX" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+      </div>
+      <div>
+        <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">Blood Group Needed</label>
+        <select required id="patient-bloodgroup" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+          <option value="">Select blood group</option>
+          <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+        </select>
+      </div>
+    </div>
+    <div class="mb-6">
+      <label class="font-label-md text-[12px] text-on-surface-variant block mb-1">Hospital Admitted</label>
+      <select required id="patient-hospital" class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-primary">
+        <option value="">Select a hospital</option>
+        <option>Edward Francis Small Teaching Hospital, Banjul</option>
+        <option>Kanifing General Hospital, Kanifing</option>
+        <option>Bansang Hospital, Bansang</option>
+        <option>Brikama Health Centre, Brikama</option>
+        <option>Farafenni General Hospital, Farafenni</option>
+        <option>Serrekunda Health Centre, Serrekunda</option>
+        <option>Bundung Maternal & Child Health Hospital, Bundung</option>
+      </select>
+    </div>
+    <button type="submit" class="w-full h-12 bg-primary text-on-primary rounded-full font-label-md text-label-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
+      Find Donors Now <span class="material-symbols-outlined text-[18px]">search</span>
+    </button>
+  </form>
+</section>
+
+<!-- ============ FIND DONORS ============ -->
+<section id="view-find-donors" class="view fade-in">
+  <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-gutter">
+    <aside class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-sm h-fit">
+      <h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-4">Filters</h2>
+      <div class="mb-5">
+        <p class="font-label-md text-[12px] text-on-surface-variant uppercase mb-2">Blood Group</p>
+        <div class="grid grid-cols-4 gap-2" id="filter-chips">
+          <button data-group="A+" onclick="toggleFilter(this)" class="border border-outline-variant rounded-lg py-2 text-[12px] font-bold text-on-surface-variant">A+</button>
+          <button data-group="A-" onclick="toggleFilter(this)" class="border border-outline-variant rounded-lg py-2 text-[12px] font-bold text-on-surface-variant">A-</button>
+          <button data-group="B+" onclick="toggleFilter(this)" class="border border-outline-variant rounded-lg py-2 text-[12px] font-bold text-on-surface-variant">B+</button>
+          <button data-group="B-" onclick="toggleFilter(this)" class="border border-outline-variant rounded-lg py-2 text-[12px] font-bold text-on-surface-variant">B-</button>
+          <button data-group="O+" onclick="toggleFilter(this)" class="border border-outline-variant rounded-lg py-2 text-[12px] font-bold text-on-surface-variant">O+</button>
+          <button data-group="O-" onclick="toggleFilter(this)" class="border border-outline-variant rounded-lg py-2 text-[12px] font-bold text-on-surface-variant">O-</button>
+          <button data-group="AB+" onclick="toggleFilter(this)" class="border border-outline-variant rounded-lg py-2 text-[12px] font-bold text-on-surface-variant">AB+</button>
+          <button data-group="AB-" onclick="toggleFilter(this)" class="border border-outline-variant rounded-lg py-2 text-[12px] font-bold text-on-surface-variant">AB-</button>
+        </div>
+      </div>
+      <button onclick="resetFilters()" class="w-full border border-outline-variant rounded-lg py-2 font-label-md text-label-md text-on-surface-variant">Reset Filters</button>
+    </aside>
+
+    <main>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h1 class="font-headline-md text-headline-md text-on-surface">Available Donors</h1>
+          <p class="font-body-md text-[13px] text-on-surface-variant"><span id="donor-count">0</span> verified donors ready to help.</p>
+        </div>
+        <button onclick="goTo('role-select')" class="h-10 px-4 bg-primary text-on-primary rounded-full font-label-md text-[12px] flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">add</span> Register
+        </button>
+      </div>
+      <div id="donor-list" class="space-y-3"></div>
+      <p id="no-donors" class="hidden text-center text-on-surface-variant text-[13px] py-10">No donors match these filters yet.</p>
+    </main>
+  </div>
+</section>
+
+<!-- ============ ADMIN APPROVALS ============ -->
+<section id="view-admin-approvals" class="view fade-in max-w-3xl mx-auto">
+  <div class="flex items-center justify-between mb-stack-sm">
+    <div>
+      <h1 class="font-headline-md text-headline-md text-on-surface">Donor Approval Queue</h1>
+      <p class="font-body-md text-[13px] text-on-surface-variant">New donor registrations wait here until an admin approves them.</p>
+    </div>
+    <span class="bg-surface-container-highest text-on-surface text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">Administrator</span>
+  </div>
+  <div id="pending-list" class="space-y-3"></div>
+  <p id="no-pending" class="hidden text-center text-on-surface-variant text-[13px] py-10">No pending registrations right now.</p>
+</section>
+
+<!-- ============ MESSAGES INBOX ============ -->
+<section id="view-messages" class="view fade-in max-w-2xl mx-auto">
+  <div class="mb-stack-sm">
+    <h1 class="font-headline-md text-headline-md text-on-surface mb-1">Messages</h1>
+    <p class="font-body-md text-[13px] text-on-surface-variant">Chat directly with donors — your phone number is never shared.</p>
+  </div>
+  <div id="inbox-list" class="space-y-2"></div>
+  <div id="no-conversations" class="hidden text-center py-stack-lg">
+    <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mx-auto mb-4">
+      <span class="material-symbols-outlined text-on-surface-variant text-[28px]">chat_bubble</span>
+    </div>
+    <p class="text-on-surface-variant text-[13px] mb-4">No conversations yet.</p>
+    <button onclick="goTo('find-donors')" class="h-10 px-5 bg-primary text-on-primary rounded-full font-label-md text-[12px]">Find a Donor to Message</button>
+  </div>
+</section>
+
+<!-- ============ CHAT ============ -->
+<section id="view-chat" class="view fade-in max-w-2xl mx-auto">
+  <div class="flex items-center gap-3 mb-4">
+    <button onclick="goTo('messages')" class="text-on-surface-variant">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <div id="chat-donor-photo" class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden flex-shrink-0"></div>
+    <div class="flex-1 min-w-0">
+      <p id="chat-donor-name" class="font-label-md text-[14px] font-bold text-on-surface truncate">Donor</p>
+      <p class="text-[11px] text-on-surface-variant">Blood group <span id="chat-donor-group">—</span> · phone number stays private</p>
+    </div>
+  </div>
+
+  <p id="chat-hospital-hint" class="hidden bg-[#FEF9C3] text-[#B45309] text-[12px] rounded-lg px-3 py-2 mb-3 flex items-start gap-2">
+    <span class="material-symbols-outlined text-[16px]">info</span>
+    <span>Register as a patient first so your hospital is filled in automatically when you request blood — otherwise you'll need to type it yourself.</span>
+  </p>
+
+  <div id="chat-thread" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 mb-3 overflow-y-auto" style="height: 50vh;"></div>
+
+  <div id="chat-quick-replies" class="flex gap-2 overflow-x-auto mb-3 pb-1"></div>
+
+  <form onsubmit="sendCustomMessage(event)" class="flex items-center gap-2">
+    <input id="chat-input" type="text" placeholder="Type a message…" class="flex-1 rounded-full border-outline-variant focus:border-primary focus:ring-primary text-[13px]">
+    <button type="submit" class="w-11 h-11 flex-shrink-0 bg-primary text-on-primary rounded-full flex items-center justify-center">
+      <span class="material-symbols-outlined">send</span>
+    </button>
+  </form>
+</section>
+
+<!-- ============ BENEFITS ============ -->
+<section id="view-benefits" class="view fade-in">
+  <div class="text-center mb-stack-md">
+    <span class="bg-error-container text-on-error-container px-3 py-1 rounded-full font-label-md text-label-md inline-flex items-center gap-1 mb-3">
+      <span class="material-symbols-outlined text-[16px]">school</span> Learn
+    </span>
+    <h1 class="font-headline-lg-mobile md:text-headline-lg text-on-surface tracking-wide">BENEFITS OF DONATING BLOOD</h1>
+  </div>
+  <div class="max-w-2xl mx-auto space-y-3 mb-stack-lg">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex gap-4 items-start">
+      <div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary-fixed-variant">favorite</span></div>
+      <div><h3 class="font-label-md text-body-lg font-bold text-on-surface mb-1">1. Saves Lives</h3><p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed">A single blood donation can help save up to three lives.</p></div>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex gap-4 items-start">
+      <div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary-fixed-variant">diversity_3</span></div>
+      <div><h3 class="font-label-md text-body-lg font-bold text-on-surface mb-1">2. Improves Community Health</h3><p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed">Regular donations maintain supply for emergencies and routine procedures.</p></div>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex gap-4 items-start">
+      <div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary-fixed-variant">monitor_heart</span></div>
+      <div><h3 class="font-label-md text-body-lg font-bold text-on-surface mb-1">3. Provides a Basic Health Check</h3><p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed">Blood pressure, pulse, and hemoglobin are checked before donating.</p></div>
+    </div>
+  </div>
+  <div class="text-center">
+    <button onclick="goTo('emergency')" class="inline-flex items-center gap-2 h-12 px-6 bg-primary text-on-primary rounded-full font-label-md text-label-md">
+      EMERGENCY RESPONSE LINES <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+    </button>
+  </div>
+</section>
+
+<!-- ============ EMERGENCY ============ -->
+<section id="view-emergency" class="view fade-in">
+  <h1 class="font-headline-md text-headline-md text-on-surface text-center mb-stack-md">Emergency Response Lines</h1>
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
+    <div class="bg-primary text-on-primary rounded-xl p-5 text-center"><p class="font-label-md text-[11px] tracking-wide opacity-90 mb-2">POLICE</p><p class="font-emergency-stat text-[26px] font-extrabold">117</p></div>
+    <div class="bg-primary text-on-primary rounded-xl p-5 text-center"><p class="font-label-md text-[11px] tracking-wide opacity-90 mb-2">AMBULANCE</p><p class="font-emergency-stat text-[26px] font-extrabold">116</p></div>
+    <div class="bg-primary text-on-primary rounded-xl p-5 text-center"><p class="font-label-md text-[11px] tracking-wide opacity-90 mb-2">REDCROSS</p><p class="font-emergency-stat text-[26px] font-extrabold">1199</p></div>
+    <div class="bg-primary text-on-primary rounded-xl p-5 text-center"><p class="font-label-md text-[11px] tracking-wide opacity-90 mb-2">GBV</p><p class="font-emergency-stat text-[26px] font-extrabold">1313</p></div>
+    <div class="bg-primary text-on-primary rounded-xl p-5 text-center"><p class="font-label-md text-[11px] tracking-wide opacity-90 mb-2">FIRE SERVICE</p><p class="font-emergency-stat text-[26px] font-extrabold">118</p></div>
+    <div class="bg-primary text-on-primary rounded-xl p-5 text-center"><p class="font-label-md text-[11px] tracking-wide opacity-90 mb-2">WATER EMERGENCY</p><p class="font-emergency-stat text-[26px] font-extrabold">1669</p></div>
+  </div>
+</section>
+
+<!-- ============ HOSPITAL DASHBOARD ============ -->
+<section id="view-hospital-dashboard" class="view fade-in">
+  <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+    <div><h1 class="font-headline-md text-headline-md text-on-surface">Hospital Dashboard</h1><p class="font-body-md text-[13px] text-on-surface-variant">Edward Francis Small Teaching Hospital · Banjul</p></div>
+    <span class="bg-surface-container-highest text-on-surface text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">Hospital Staff</span>
+  </div>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Active Requests</p><p class="font-headline-lg text-headline-lg text-on-surface">7</p></div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Pending Approval</p><p class="font-headline-lg text-headline-lg text-on-surface">3</p></div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Units Received (30d)</p><p class="font-headline-lg text-headline-lg text-on-surface">142</p></div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Avg. Fulfillment</p><p class="font-headline-lg text-headline-lg text-on-surface">3.4h</p></div>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5">
+    <h2 class="font-label-md text-body-lg font-bold text-on-surface mb-4">Visible Blood Bank Inventory</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="border border-outline-variant rounded-lg p-3 text-center"><p class="font-bold text-[13px]">O+</p><p class="font-headline-md text-[20px] font-extrabold">58</p><p class="text-[10px] text-on-surface-variant">units</p></div>
+      <div class="bg-error-container border border-primary rounded-lg p-3 text-center"><p class="font-bold text-[13px] text-primary">O-</p><p class="font-headline-md text-[20px] font-extrabold text-primary">4</p><p class="text-[10px] text-on-surface-variant">units</p></div>
+      <div class="border border-outline-variant rounded-lg p-3 text-center"><p class="font-bold text-[13px]">A+</p><p class="font-headline-md text-[20px] font-extrabold">33</p><p class="text-[10px] text-on-surface-variant">units</p></div>
+      <div class="bg-[#FEF9C3] border border-[#F59E0B] rounded-lg p-3 text-center"><p class="font-bold text-[13px] text-[#B45309]">A-</p><p class="font-headline-md text-[20px] font-extrabold text-[#B45309]">9</p><p class="text-[10px] text-on-surface-variant">units</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BLOOD BANK DASHBOARD ============ -->
+<section id="view-blood-bank-dashboard" class="view fade-in">
+  <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+    <div><h1 class="font-headline-md text-headline-md text-on-surface">Blood Bank Dashboard</h1><p class="font-body-md text-[13px] text-on-surface-variant">National Blood Bank · Kanifing</p></div>
+    <span class="bg-surface-container-highest text-on-surface text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">Blood Bank Staff</span>
+  </div>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Total Units</p><p class="font-headline-lg text-headline-lg text-on-surface">154</p></div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Expiring in 72h</p><p class="font-headline-lg text-headline-lg text-on-surface">11</p></div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">In Testing</p><p class="font-headline-lg text-headline-lg text-on-surface">6</p></div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Critical Groups</p><p class="font-headline-lg text-headline-lg text-on-surface">2</p></div>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5">
+    <h2 class="font-label-md text-body-lg font-bold text-on-surface mb-4">Storage Monitoring</h2>
+    <ul class="space-y-3 text-[13px]">
+      <li class="flex justify-between border-b border-outline-variant/50 pb-3"><span class="font-bold">Fridge A — Whole Blood</span><span class="text-secondary font-bold">4.1°C ✓</span></li>
+      <li class="flex justify-between"><span class="font-bold">Fridge C — Platelets</span><span class="text-primary font-bold">22.6°C ⚠</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ ADMIN ANALYTICS ============ -->
+<section id="view-admin-analytics" class="view fade-in">
+  <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+    <div><h1 class="font-headline-md text-headline-md text-on-surface">National Analytics</h1><p class="font-body-md text-[13px] text-on-surface-variant">All regions · Ministry of Health</p></div>
+    <span class="bg-surface-container-highest text-on-surface text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">Administrator</span>
+  </div>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Active Donors</p><p id="stat-active-donors" class="font-headline-lg text-headline-lg text-on-surface">0</p></div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Pending Approvals</p><p id="stat-pending" class="font-headline-lg text-headline-lg text-on-surface">0</p></div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">Patients Registered</p><p id="stat-patients" class="font-headline-lg text-headline-lg text-on-surface">0</p></div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4"><p class="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wide mb-2">National Stock Level</p><p class="font-headline-lg text-headline-lg text-on-surface">68%</p></div>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5">
+    <h2 class="font-label-md text-body-lg font-bold text-on-surface mb-4">Recent Patient Requests</h2>
+    <div id="admin-patient-list" class="space-y-2"></div>
+    <p id="no-patients" class="hidden text-center text-on-surface-variant text-[13px] py-6">No patient registrations yet.</p>
+  </div>
+</section>
+
+<!-- ============ EMERGENCY OPS ============ -->
+<section id="view-emergency-ops" class="view fade-in">
+  <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+    <div><h1 class="font-headline-md text-headline-md text-on-surface">Emergency Operations</h1><p class="font-body-md text-[13px] text-on-surface-variant">Live Board · Dispatch Desk 2</p></div>
+    <span class="bg-surface-container-highest text-on-surface text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">Emergency Dispatcher</span>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div class="bg-surface-container border border-outline-variant rounded-xl p-4">
+      <h3 class="font-label-md text-[12px] uppercase tracking-wide text-on-surface-variant mb-3">Critical</h3>
+      <div class="bg-surface-container-lowest border border-outline-variant border-l-4 border-l-primary rounded-lg p-3 mb-3">
+        <div class="flex justify-between mb-1"><span class="font-bold text-[13px]">#REQ-2291 · O-</span><span class="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-0.5 rounded-full">Emergency</span></div>
+        <p class="text-[12px] text-on-surface-variant">Edward Francis Hospital · 4 units needed</p>
+      </div>
+    </div>
+    <div class="bg-surface-container border border-outline-variant rounded-xl p-4">
+      <h3 class="font-label-md text-[12px] uppercase tracking-wide text-on-surface-variant mb-3">In Progress</h3>
+      <div class="bg-surface-container-lowest border border-outline-variant border-l-4 border-l-[#F59E0B] rounded-lg p-3 mb-3">
+        <div class="flex justify-between mb-1"><span class="font-bold text-[13px]">#REQ-2288 · A+</span><span class="bg-[#FEF9C3] text-[#B45309] text-[10px] font-bold px-2 py-0.5 rounded-full">Matching</span></div>
+        <p class="text-[12px] text-on-surface-variant">2 donors notified, awaiting response</p>
+      </div>
+    </div>
+    <div class="bg-surface-container border border-outline-variant rounded-xl p-4">
+      <h3 class="font-label-md text-[12px] uppercase tracking-wide text-on-surface-variant mb-3">Resolved Today</h3>
+      <div class="bg-surface-container-lowest border border-outline-variant border-l-4 border-l-secondary rounded-lg p-3 mb-3">
+        <div class="flex justify-between mb-1"><span class="font-bold text-[13px]">#REQ-2260 · O+</span><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-0.5 rounded-full">Fulfilled</span></div>
+        <p class="text-[12px] text-on-surface-variant">Resolved in 22 min</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ BOTTOM NAV ============ -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 bg-surface border-t border-outline-variant z-50 md:hidden">
+  <button onclick="goTo('home')" class="nav-btn flex flex-col items-center justify-center text-on-surface-variant p-2 rounded-xl" data-view="home">
+    <span class="material-symbols-outlined">home</span><span class="font-label-md text-label-md">Home</span>
+  </button>
+  <button onclick="goTo('find-donors')" class="nav-btn flex flex-col items-center justify-center text-on-surface-variant p-2 rounded-xl" data-view="find-donors">
+    <span class="material-symbols-outlined">search</span><span class="font-label-md text-label-md">Find</span>
+  </button>
+  <button onclick="goTo('role-select')" class="nav-btn flex flex-col items-center justify-center text-on-surface-variant p-2 rounded-xl" data-view="role-select">
+    <span class="material-symbols-outlined">volunteer_activism</span><span class="font-label-md text-label-md">Register</span>
+  </button>
+  <button onclick="goTo('benefits')" class="nav-btn flex flex-col items-center justify-center text-on-surface-variant p-2 rounded-xl" data-view="benefits">
+    <span class="material-symbols-outlined">campaign</span><span class="font-label-md text-label-md">Learn</span>
+  </button>
+  <button onclick="goTo('admin-approvals')" class="nav-btn flex flex-col items-center justify-center text-on-surface-variant p-2 rounded-xl" data-view="admin-approvals">
+    <span class="material-symbols-outlined">verified_user</span><span class="font-label-md text-label-md">Admin</span>
+  </button>
+</nav>
+
+<script>
+// =====================================================================
+// GAMBLOODCARE — in-memory application state.
+// This is a front-end prototype: all data lives in JS variables for the
+// current browser session only (no localStorage, no backend). Refreshing
+// the page resets everything back to the seed data below. Wiring this to
+// the real Phase-1 Postgres schema/NestJS API is the next build step.
+// =====================================================================
+
+let donorIdCounter = 100;
+let patientIdCounter = 900;
+
+let donors = [
+  { id: 1, name: "Ebrima Njie", phone: "+220 771 2345", address: "Bakau, The Gambia", bloodGroup: "O+", photo: "data:image/jpeg;base64,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", status: "approved", donations: 5, distance: "2.4 km away", addedAt: 0 },
+  { id: 2, name: "Aminata Kandeh", phone: "+220 990 5521", address: "Banjul, The Gambia", bloodGroup: "A+", photo: "data:image/jpeg;base64,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", status: "approved", donations: 12, distance: "3.7 km away", addedAt: 0 },
+  { id: 3, name: "Bai Sheikh", phone: "+220 366 7788", address: "Serrekunda, The Gambia", bloodGroup: "O+", photo: "data:image/jpeg;base64,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", status: "approved", donations: 2, distance: "4.3 km away", addedAt: 0 }
+];
+
+let pendingDonors = [];
+let patients = [];
+let currentPatient = null; // last patient registration in this session; powers chat auto-fill
+let activeFilters = new Set();
+
+// ---------------------------------------------------------------------
+// View routing
+// ---------------------------------------------------------------------
+function goTo(viewId, pushHistory) {
+  if (pushHistory === undefined) pushHistory = true;
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = document.getElementById('view-' + viewId);
+  if (target) target.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    const isActive = btn.dataset.view === viewId;
+    btn.classList.toggle('bg-secondary-container', isActive);
+    btn.classList.toggle('text-on-secondary-container', isActive);
+    btn.classList.toggle('text-on-surface-variant', !isActive);
+  });
+
+  if (viewId === 'find-donors') renderDonorList();
+  if (viewId === 'admin-approvals') renderPendingList();
+  if (viewId === 'admin-analytics') renderAdminAnalytics();
+  if (viewId === 'messages') renderInbox();
+
+  // Push a history entry so the Android hardware/WebView back button (and
+  // desktop browser back button) steps back through in-app screens instead
+  // of immediately closing the app / leaving the page. See MainActivity's
+  // onKeyDown, which calls webView.goBack() when history is available.
+  if (pushHistory) {
+    history.pushState({ view: viewId }, '', '#' + viewId);
+  }
+}
+
+window.addEventListener('popstate', function(e) {
+  const viewId = (e.state && e.state.view) ? e.state.view : 'home';
+  goTo(viewId, false);
+});
+
+// ---------------------------------------------------------------------
+// Donor registration
+// ---------------------------------------------------------------------
+let pendingPhotoDataUrl = null;
+
+function previewDonorPhoto(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    pendingPhotoDataUrl = e.target.result;
+    const preview = document.getElementById('donor-photo-preview');
+    preview.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover">';
+    document.getElementById('donor-photo-label').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitDonor(evt) {
+  evt.preventDefault();
+  const name = document.getElementById('donor-name').value.trim();
+  const address = document.getElementById('donor-address').value.trim();
+  const phone = document.getElementById('donor-phone').value.trim();
+  const idNumber = document.getElementById('donor-id').value.trim();
+  const bloodGroup = document.getElementById('donor-bloodgroup').value;
+
+  donorIdCounter += 1;
+  const newDonor = {
+    id: donorIdCounter,
+    name: name,
+    address: address,
+    phone: phone,
+    idNumber: idNumber, // stored, never rendered in any public list
+    bloodGroup: bloodGroup,
+    photo: pendingPhotoDataUrl, // may be null if no photo chosen
+    status: "pending",
+    donations: 0,
+    distance: "New donor",
+    addedAt: Date.now()
+  };
+  pendingDonors.push(newDonor);
+  updatePendingBadge();
+
+  document.getElementById('pending-donor-name').textContent = name || "there";
+  evt.target.reset();
+  document.getElementById('donor-photo-preview').innerHTML = '<span class="material-symbols-outlined text-on-surface-variant">person</span>';
+  document.getElementById('donor-photo-label').textContent = "Upload a photo";
+  pendingPhotoDataUrl = null;
+
+  goTo('donor-pending');
+}
+
+// ---------------------------------------------------------------------
+// Patient registration
+// ---------------------------------------------------------------------
+function submitPatient(evt) {
+  evt.preventDefault();
+  patientIdCounter += 1;
+  const patient = {
+    id: patientIdCounter,
+    name: document.getElementById('patient-name').value.trim(),
+    address: document.getElementById('patient-address').value.trim(),
+    phone: document.getElementById('patient-phone').value.trim(),
+    bloodGroup: document.getElementById('patient-bloodgroup').value,
+    hospital: document.getElementById('patient-hospital').value,
+    addedAt: Date.now()
+  };
+  patients.push(patient);
+  currentPatient = patient;
+
+  // Pre-filter the donor dashboard to the blood group this patient needs.
+  activeFilters = new Set([patient.bloodGroup]);
+  evt.target.reset();
+  goTo('find-donors');
+  applyFilterStyles();
+}
+
+// ---------------------------------------------------------------------
+// Donor list rendering + filters + contact reveal
+// ---------------------------------------------------------------------
+function toggleFilter(btn) {
+  const group = btn.dataset.group;
+  if (activeFilters.has(group)) {
+    activeFilters.delete(group);
+  } else {
+    activeFilters.add(group);
+  }
+  applyFilterStyles();
+  renderDonorList();
+}
+
+function applyFilterStyles() {
+  document.querySelectorAll('#filter-chips button').forEach(btn => {
+    const active = activeFilters.has(btn.dataset.group);
+    btn.classList.toggle('bg-primary', active);
+    btn.classList.toggle('text-on-primary', active);
+    btn.classList.toggle('border-outline-variant', !active);
+    btn.classList.toggle('text-on-surface-variant', !active);
+  });
+}
+
+function resetFilters() {
+  activeFilters = new Set();
+  applyFilterStyles();
+  renderDonorList();
+}
+
+function renderDonorList() {
+  const list = document.getElementById('donor-list');
+  const empty = document.getElementById('no-donors');
+  const countEl = document.getElementById('donor-count');
+
+  let visible = donors.filter(d => d.status === 'approved');
+  if (activeFilters.size > 0) {
+    visible = visible.filter(d => activeFilters.has(d.bloodGroup));
+  }
+  // Most recently approved first
+  visible = visible.slice().sort((a, b) => b.addedAt - a.addedAt);
+
+  countEl.textContent = visible.length;
+
+  if (visible.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  list.innerHTML = visible.map(d => {
+    const isNew = d.addedAt > 0 && (Date.now() - d.addedAt) < 1000 * 60 * 60 * 24;
+    const photoHtml = d.photo
+      ? '<img src="' + d.photo + '" alt="' + d.name + '" class="w-14 h-14 rounded-full object-cover border-2 border-primary-fixed">'
+      : '<div class="w-14 h-14 rounded-full bg-surface-container-high border-2 border-primary-fixed flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">person</span></div>';
+
+    return '<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center gap-4">' +
+      photoHtml +
+      '<div class="flex-1 min-w-0">' +
+        '<div class="flex items-center gap-2 flex-wrap">' +
+          '<p class="font-label-md text-body-lg font-bold text-on-surface truncate">' + d.name + '</p>' +
+          '<span class="bg-primary text-on-primary text-[11px] font-bold px-2 py-0.5 rounded-full">' + d.bloodGroup + '</span>' +
+          (isNew ? '<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-0.5 rounded-full">Recently Added</span>' : '') +
+        '</div>' +
+        '<p class="font-body-md text-[13px] text-on-surface-variant flex items-center gap-1">' +
+          '<span class="material-symbols-outlined text-[15px]">location_on</span>' + (d.address || d.distance) +
+        '</p>' +
+      '</div>' +
+      '<div class="hidden sm:flex flex-col items-center text-center px-3">' +
+        '<span class="font-headline-md text-headline-md text-primary">' + d.donations + '</span>' +
+        '<span class="font-label-md text-[11px] text-on-surface-variant">Donations</span>' +
+      '</div>' +
+      '<div id="contact-slot-' + d.id + '">' +
+        '<button onclick="openChat(' + d.id + ')" class="bg-primary text-on-primary text-[12px] font-bold px-4 py-2 rounded-full flex items-center gap-1.5">' +
+          '<span class="material-symbols-outlined text-[16px]">chat</span> Message' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ---------------------------------------------------------------------
+// In-app chat (replaces revealing the donor's raw phone number).
+//
+// NOTE ON WHAT THIS IS AND ISN'T: there's no backend yet, so this can't
+// actually deliver a message to a donor's separate device in real time —
+// that needs a server (WebSockets or push notifications), which is
+// Phase 4 territory in the architecture doc, and would need new
+// Conversation/Message tables added to the Phase 1 schema. What's built
+// here is the full, real interaction: composing, quick-reply templates
+// that pull live data from the patient's own registration, a persistent
+// (session-lifetime) thread per donor, and a simulated donor reply so the
+// flow is demoable end-to-end. Swapping the storage layer for real API
+// calls later shouldn't require changing this UI code.
+// ---------------------------------------------------------------------
+
+let conversations = {};   // donorId -> [{ from: 'patient'|'donor', text, time }]
+let unreadCount = 0;
+let activeChatDonorId = null;
+
+function getOrCreateConversation(donorId) {
+  if (!conversations[donorId]) conversations[donorId] = [];
+  return conversations[donorId];
+}
+
+function openChat(donorId) {
+  activeChatDonorId = donorId;
+  const donor = donors.find(d => d.id === donorId);
+  if (!donor) return;
+
+  document.getElementById('chat-donor-name').textContent = donor.name;
+  document.getElementById('chat-donor-group').textContent = donor.bloodGroup;
+  document.getElementById('chat-donor-photo').innerHTML = donor.photo
+    ? '<img src="' + donor.photo + '" class="w-full h-full object-cover">'
+    : '<span class="material-symbols-outlined text-on-surface-variant">person</span>';
+
+  buildQuickReplies(donor);
+  renderChatThread();
+  goTo('chat');
+}
+
+function buildQuickReplies(donor) {
+  const patientName = (currentPatient && currentPatient.name) ? currentPatient.name : null;
+  const neededGroup = (currentPatient && currentPatient.bloodGroup) ? currentPatient.bloodGroup : donor.bloodGroup;
+  const hospital = (currentPatient && currentPatient.hospital) ? currentPatient.hospital : null;
+
+  // Pulls straight from the patient's own registration (name, blood group,
+  // hospital) rather than anything typed manually — that's the whole point
+  // of asking for those fields at signup.
+  let requestText;
+  if (patientName && hospital) {
+    requestText = "Hi, I'm " + patientName + ". I need a blood group of " + neededGroup + ". I'm admitted at " + hospital + ". Can you help?";
+  } else if (patientName) {
+    requestText = "Hi, I'm " + patientName + ". I need a blood group of " + neededGroup + ". Can you help?";
+  } else if (hospital) {
+    requestText = "Hi, I need a blood group of " + neededGroup + ". I'm admitted at " + hospital + ". Can you help?";
+  } else {
+    requestText = "Hi, I need a blood group of " + neededGroup + ". Can you help?";
+  }
+
+  const introText = patientName
+    ? "Hi, I'm " + patientName + "."
+    : "Hi there.";
+
+  const chips = [
+    { label: "I need " + neededGroup + " blood", text: requestText },
+    { label: "Are you available today?", text: introText + " Are you available to donate today?" },
+    { label: "Thank you!", text: "Thank you so much for your willingness to help." }
+  ];
+
+  const container = document.getElementById('chat-quick-replies');
+  container.innerHTML = chips.map((c, i) =>
+    '<button onclick="sendQuickMessage(' + i + ')" class="flex-shrink-0 border border-outline-variant rounded-full px-3 py-1.5 text-[12px] font-bold text-on-surface-variant whitespace-nowrap">' + c.label + '</button>'
+  ).join('');
+  container.dataset.chips = JSON.stringify(chips);
+
+  if (!patientName || !hospital) {
+    document.getElementById('chat-hospital-hint').classList.remove('hidden');
+  } else {
+    document.getElementById('chat-hospital-hint').classList.add('hidden');
+  }
+}
+
+function sendQuickMessage(chipIndex) {
+  const chips = JSON.parse(document.getElementById('chat-quick-replies').dataset.chips || "[]");
+  const chip = chips[chipIndex];
+  if (!chip) return;
+  pushMessage(activeChatDonorId, 'patient', chip.text);
+}
+
+function sendCustomMessage(evt) {
+  evt.preventDefault();
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  pushMessage(activeChatDonorId, 'patient', text);
+  input.value = '';
+}
+
+function pushMessage(donorId, from, text) {
+  const thread = getOrCreateConversation(donorId);
+  thread.push({ from: from, text: text, time: nowLabel() });
+  if (donorId === activeChatDonorId) renderChatThread();
+  if (from === 'patient') simulateDonorReply(donorId);
+  updateUnreadBadge();
+}
+
+function simulateDonorReply(donorId) {
+  // Stand-in for a real donor's reply until there's a backend + a second
+  // logged-in user to actually send one. Clearly a canned response, not
+  // meant to look human-authored.
+  const donor = donors.find(d => d.id === donorId);
+  if (!donor) return;
+  setTimeout(function() {
+    const thread = getOrCreateConversation(donorId);
+    thread.push({
+      from: 'donor',
+      text: "Thanks for reaching out — I've received your message and will confirm shortly.",
+      time: nowLabel(),
+      simulated: true
+    });
+    if (donorId === activeChatDonorId) renderChatThread();
+    unreadCount += 1;
+    updateUnreadBadge();
+  }, 1200);
+}
+
+function nowLabel() {
+  const d = new Date();
+  let h = d.getHours();
+  const m = d.getMinutes().toString().padStart(2, '0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if (h === 0) h = 12;
+  return h + ':' + m + ' ' + ampm;
+}
+
+function renderChatThread() {
+  const thread = getOrCreateConversation(activeChatDonorId);
+  const container = document.getElementById('chat-thread');
+
+  if (thread.length === 0) {
+    container.innerHTML = '<p class="text-center text-on-surface-variant text-[13px] py-10">Send a message to start the conversation. Your phone number stays private — the donor only sees what you write here.</p>';
+    return;
+  }
+
+  container.innerHTML = thread.map(function(m) {
+    if (m.from === 'patient') {
+      return '<div class="flex justify-end mb-3">' +
+        '<div class="max-w-[80%]">' +
+          '<div class="bg-primary text-on-primary rounded-2xl rounded-tr-sm px-4 py-2.5 text-[13px]">' + escapeHtml(m.text) + '</div>' +
+          '<p class="text-[10px] text-on-surface-variant text-right mt-1">' + m.time + '</p>' +
+        '</div>' +
+      '</div>';
+    } else {
+      return '<div class="flex justify-start mb-3">' +
+        '<div class="max-w-[80%]">' +
+          '<div class="bg-surface-container-high text-on-surface rounded-2xl rounded-tl-sm px-4 py-2.5 text-[13px]">' + escapeHtml(m.text) + '</div>' +
+          '<p class="text-[10px] text-on-surface-variant mt-1">' + m.time + (m.simulated ? ' · auto-reply (prototype)' : '') + '</p>' +
+        '</div>' +
+      '</div>';
+    }
+  }).join('');
+
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function updateUnreadBadge() {
+  const badge = document.getElementById('unread-badge');
+  if (unreadCount > 0) {
+    badge.textContent = unreadCount;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+function renderInbox() {
+  const list = document.getElementById('inbox-list');
+  const empty = document.getElementById('no-conversations');
+  const donorIds = Object.keys(conversations).filter(id => conversations[id].length > 0);
+
+  if (donorIds.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  // Clear unread count once the inbox is viewed.
+  unreadCount = 0;
+  updateUnreadBadge();
+
+  list.innerHTML = donorIds.map(function(idStr) {
+    const donorId = parseInt(idStr, 10);
+    const donor = donors.find(d => d.id === donorId);
+    if (!donor) return '';
+    const thread = conversations[donorId];
+    const last = thread[thread.length - 1];
+    const photoHtml = donor.photo
+      ? '<img src="' + donor.photo + '" class="w-12 h-12 rounded-full object-cover">'
+      : '<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">person</span></div>';
+
+    return '<button onclick="openChat(' + donor.id + ')" class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl p-3 flex items-center gap-3 text-left">' +
+      photoHtml +
+      '<div class="flex-1 min-w-0">' +
+        '<p class="font-label-md text-[13px] font-bold text-on-surface">' + donor.name + '</p>' +
+        '<p class="text-[12px] text-on-surface-variant truncate">' + (last.from === 'patient' ? 'You: ' : '') + escapeHtml(last.text) + '</p>' +
+      '</div>' +
+      '<span class="text-[11px] text-on-surface-variant whitespace-nowrap">' + last.time + '</span>' +
+    '</button>';
+  }).join('');
+}
+
+// ---------------------------------------------------------------------
+// Admin approval queue
+// ---------------------------------------------------------------------
+function updatePendingBadge() {
+  const badge = document.getElementById('pending-badge');
+  if (pendingDonors.length > 0) {
+    badge.textContent = pendingDonors.length;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+function renderPendingList() {
+  const list = document.getElementById('pending-list');
+  const empty = document.getElementById('no-pending');
+
+  if (pendingDonors.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  list.innerHTML = pendingDonors.map(d => {
+    const photoHtml = d.photo
+      ? '<img src="' + d.photo + '" alt="' + d.name + '" class="w-14 h-14 rounded-full object-cover border-2 border-outline-variant">'
+      : '<div class="w-14 h-14 rounded-full bg-surface-container-high border-2 border-outline-variant flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">person</span></div>';
+
+    return '<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center gap-4">' +
+      photoHtml +
+      '<div class="flex-1 min-w-0">' +
+        '<div class="flex items-center gap-2 flex-wrap">' +
+          '<p class="font-label-md text-body-lg font-bold text-on-surface truncate">' + d.name + '</p>' +
+          '<span class="bg-primary text-on-primary text-[11px] font-bold px-2 py-0.5 rounded-full">' + d.bloodGroup + '</span>' +
+        '</div>' +
+        '<p class="font-body-md text-[12px] text-on-surface-variant">' + d.address + ' · ' + d.phone + '</p>' +
+        '<p class="font-label-md text-[11px] text-on-surface-variant mt-1">ID on file: ' + maskId(d.idNumber) + '</p>' +
+      '</div>' +
+      '<div class="flex flex-col gap-2">' +
+        '<button onclick="approveDonor(' + d.id + ')" class="bg-secondary text-on-secondary text-[12px] font-bold px-4 py-1.5 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[15px]">check</span> Approve</button>' +
+        '<button onclick="rejectDonor(' + d.id + ')" class="border border-outline-variant text-on-surface-variant text-[12px] font-bold px-4 py-1.5 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[15px]">close</span> Reject</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function maskId(idNumber) {
+  if (!idNumber) return "—";
+  if (idNumber.length <= 4) return "•".repeat(idNumber.length);
+  return idNumber.slice(0, 2) + "•".repeat(Math.max(idNumber.length - 4, 2)) + idNumber.slice(-2);
+}
+
+function approveDonor(donorId) {
+  const idx = pendingDonors.findIndex(d => d.id === donorId);
+  if (idx === -1) return;
+  const donor = pendingDonors[idx];
+  donor.status = "approved";
+  donor.addedAt = Date.now();
+  donors.push(donor);
+  pendingDonors.splice(idx, 1);
+  updatePendingBadge();
+  renderPendingList();
+}
+
+function rejectDonor(donorId) {
+  const idx = pendingDonors.findIndex(d => d.id === donorId);
+  if (idx === -1) return;
+  pendingDonors.splice(idx, 1);
+  updatePendingBadge();
+  renderPendingList();
+}
+
+// ---------------------------------------------------------------------
+// Admin analytics (live counts wired to actual state)
+// ---------------------------------------------------------------------
+function renderAdminAnalytics() {
+  document.getElementById('stat-active-donors').textContent = donors.filter(d => d.status === 'approved').length;
+  document.getElementById('stat-pending').textContent = pendingDonors.length;
+  document.getElementById('stat-patients').textContent = patients.length;
+
+  const list = document.getElementById('admin-patient-list');
+  const empty = document.getElementById('no-patients');
+  if (patients.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  list.innerHTML = patients.slice().reverse().map(p => {
+    return '<div class="flex justify-between items-center border-b border-outline-variant/50 py-2 text-[13px]">' +
+      '<div><span class="font-bold text-on-surface">' + p.name + '</span> <span class="text-on-surface-variant">needs ' + p.bloodGroup + '</span></div>' +
+      '<span class="text-on-surface-variant text-[12px]">' + p.hospital + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+// ---------------------------------------------------------------------
+// Init
+// ---------------------------------------------------------------------
+updatePendingBadge();
+history.replaceState({ view: 'home' }, '', '#home');
+goTo('home', false);
+</script>
+</body></html>
